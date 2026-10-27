@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSA Interview Sheet</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1b1b1a;--mute:#6b6b66;--line:#e4e3de;--accent:#2f5bea;--easy:#1a8f4c;--med:#b7791f;--hard:#c0392b;--chip:#eef0f6}
+@media (prefers-color-scheme:dark){:root{--bg:#141415;--card:#1c1c1e;--ink:#ececea;--mute:#9a9a94;--line:#2c2c2f;--accent:#7b9bff;--easy:#4cc380;--med:#e0a94a;--hard:#ef6f61;--chip:#26272d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:26px;margin:6px 0 4px}
+.sub{color:var(--mute);margin:0 0 16px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
+input[type=search]{flex:1;min-width:180px}
+.prog{height:8px;background:var(--chip);border-radius:6px;overflow:hidden;margin-top:10px}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.stats{font-size:13px;color:var(--mute);margin-top:6px}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.chip{display:inline-block;padding:1px 7px;border-radius:10px;background:var(--chip);font-size:11px;color:var(--mute);white-space:nowrap}
+.chip.must{background:var(--accent);color:#fff}
+details.cheat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:14px 0}
+details.cheat summary{cursor:pointer;font-weight:600}
+table.ch{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+table.ch td{padding:5px 8px;border-top:1px solid var(--line);vertical-align:top}
+table.ch td:first-child{color:var(--mute);width:48%}
+section{margin:18px 0}
+section>h2{font-size:19px;margin:0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}
+section>h2 small{font-weight:400;color:var(--mute);font-size:13px}
+section.closed .body{display:none}
+.tip{color:var(--mute);font-size:13px;margin:8px 4px}
+.grp{margin:12px 0 4px;font-weight:600;font-size:14px;color:var(--accent)}
+table.q{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table.q td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:middle}
+table.q tr:first-child td{border-top:0}
+table.q tr.done td.t a{text-decoration:line-through;color:var(--mute)}
+td.c{width:30px}
+td.t a{color:var(--ink);text-decoration:none;font-weight:500}
+td.t a:hover{color:var(--accent);text-decoration:underline}
+.d{font-size:12px;font-weight:600}
+.d.E{color:var(--easy)}.d.M{color:var(--med)}.d.H{color:var(--hard)}
+.alt{font-size:12px;margin-left:6px;color:var(--accent)}
+td.s{text-align:right}
+td.s .chip{margin-left:3px}
+.hide{display:none!important}
+footer{color:var(--mute);font-size:12.5px;margin-top:30px}
+@media (max-width:640px){td.s{display:none}}
+</style>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+<h1>DSA Interview Sheet — Pattern wise</h1>
+<p class="sub">Merged &amp; de-duplicated from Striver (A2Z / SDE sheet), NeetCode 150, Apna College (Love Babbar style list), Kunal Kushwaha's DSA bootcamp assignments and LeetCode Top Interview 150. Each problem appears once, tagged with every list it belongs to.</p>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search problem or pattern…">
+    <select id="fd"><option value="">All difficulty</option><option value="E">Easy</option><option value="M">Medium</option><option value="H">Hard</option></select>
+    <select id="fs"><option value="">All sources</option><option value="S">Striver</option><option value="N">NeetCode</option><option value="A">Apna College</option><option value="K">Kunal Kushwaha</option><option value="L">LC Top 150</option></select>
+    <select id="fm"><option value="">All problems</option><option value="must">Must-do only (3+ lists)</option><option value="todo">Not solved</option><option value="done">Solved</option></select>
+  </div>
+  <div class="actions">
+    <button id="expandAll" type="button">Expand all</button>
+    <button id="focus" type="button">Focus mode</button>
+    <button id="reset" type="button">Reset progress</button>
+    <button id="export" class="primary" type="button">Export progress</button>
+    <button id="import" type="button">Import progress</button>
+    <input id="importFile" type="file" accept="application/json" hidden>
+  </div>
+  <div class="prog"><i id="pb"></i></div>
+  <div class="stats" id="st"></div>
+</div>
+
+<div class="legend">
+  <span class="chip must">★ Must-do = in 3 or more lists</span>
+  <span class="chip">S Striver</span><span class="chip">N NeetCode</span><span class="chip">A Apna College</span><span class="chip">K Kunal</span><span class="chip">L LC Top 150</span>
+</div>
+
+<details class="cheat" open>
+<summary>Which pattern should I use? (clue → pattern)</summary>
+<table class="ch">
+<tr><td>Sorted array, find pair / triplet / merge</td><td>Two pointers</td></tr>
+<tr><td>Longest / shortest / count subarray or substring with a condition</td><td>Sliding window (or prefix sum + hashmap if negatives)</td></tr>
+<tr><td>Sorted or monotonic answer space, "minimum max" / "maximum min"</td><td>Binary search on answer</td></tr>
+<tr><td>Next greater / smaller element, histogram, span</td><td>Monotonic stack</td></tr>
+<tr><td>Cycle, middle, nth from end in linked list</td><td>Fast and slow pointers</td></tr>
+<tr><td>Top K, K-th largest, running median, scheduling</td><td>Heap / priority queue</td></tr>
+<tr><td>All subsets, permutations, combinations, board placement</td><td>Backtracking</td></tr>
+<tr><td>Shortest path in unweighted graph or grid, level by level</td><td>BFS</td></tr>
+<tr><td>Connected components, islands, cycle detection, tree problems</td><td>DFS</td></tr>
+<tr><td>Dependencies, ordering, prerequisites</td><td>Topological sort</td></tr>
+<tr><td>Merge groups, "are these connected" queries</td><td>Union Find</td></tr>
+<tr><td>Weighted shortest path / minimum spanning tree</td><td>Dijkstra, Bellman-Ford / Prim, Kruskal</td></tr>
+<tr><td>Count ways, min/max cost, overlapping subproblems</td><td>Dynamic programming (1D, grid, knapsack, LCS, LIS)</td></tr>
+<tr><td>Locally optimal choice works, intervals, scheduling</td><td>Greedy + sorting</td></tr>
+<tr><td>Prefix lookup, autocomplete, word dictionary</td><td>Trie</td></tr>
+<tr><td>Values in range 1..n, find missing / duplicate</td><td>Cyclic sort / index marking</td></tr>
+<tr><td>XOR, powers of two, single element among pairs</td><td>Bit manipulation</td></tr>
+</table>
+</details>
+
+<div id="app"></div>
+
+<footer>
+Tick the checkbox to track progress; it is saved in your browser. Links go to LeetCode, except a few GFG-only problems which link to GeeksforGeeks. Premium-only LeetCode problems (Encode/Decode Strings, Meeting Rooms, Graph Valid Tree, etc.) are left out so every link opens for free; their GFG or free equivalents are included where possible.
+</footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+const SRC={S:"Striver",N:"NeetCode",A:"Apna College",K:"Kunal",L:"LC Top 150"};
+// row: [title, slug ("gfg:slug" for GeeksforGeeks), difficulty, sources]
+const DATA=[
+{sec:"Arrays & Hashing",tip:"Foundation of most interviews. Think: hashmap for O(1) lookup, in-place tricks for O(1) space.",groups:[
+ {p:"Hash Map / Frequency",rows:[
+  ["Two Sum","two-sum","E","SNAKL"],["Contains Duplicate","contains-duplicate","E","NA"],["Valid Anagram","valid-anagram","E","NL"],
+  ["Group Anagrams","group-anagrams","M","SNL"],["Top K Frequent Elements","top-k-frequent-elements","M","SN"],
+  ["Longest Consecutive Sequence","longest-consecutive-sequence","M","SNL"],["Ransom Note","ransom-note","E","L"],
+  ["Isomorphic Strings","isomorphic-strings","E","L"],["Word Pattern","word-pattern","E","L"],["Happy Number","happy-number","E","L"],
+  ["Contains Duplicate II","contains-duplicate-ii","E","L"],["Valid Sudoku","valid-sudoku","M","NL"],
+  ["Insert Delete GetRandom O(1)","insert-delete-getrandom-o1","M","L"]]},
+ {p:"In-place / Array tricks",rows:[
+  ["Majority Element","majority-element","E","SAL"],["Majority Element II","majority-element-ii","M","S"],
+  ["Product of Array Except Self","product-of-array-except-self","M","SNL"],["Move Zeroes","move-zeroes","E","SA"],
+  ["Remove Duplicates from Sorted Array","remove-duplicates-from-sorted-array","E","SL"],["Remove Duplicates from Sorted Array II","remove-duplicates-from-sorted-array-ii","M","L"],
+  ["Remove Element","remove-element","E","L"],["Merge Sorted Array","merge-sorted-array","E","LK"],["Rotate Array","rotate-array","M","AL"],
+  ["Sort Colors (Dutch Flag)","sort-colors","M","SAK"],["Next Permutation","next-permutation","M","SA"],
+  ["Best Time to Buy and Sell Stock","best-time-to-buy-and-sell-stock","E","SNAL"],["Best Time to Buy and Sell Stock II","best-time-to-buy-and-sell-stock-ii","M","L"],
+  ["H-Index","h-index","M","L"],["Missing Number","missing-number","E","SNA"],["Find the Duplicate Number","find-the-duplicate-number","M","SNK"],
+  ["Find All Numbers Disappeared in an Array","find-all-numbers-disappeared-in-an-array","E","K"],["Pascal's Triangle","pascals-triangle","E","SA"]]},
+ {p:"Matrix",rows:[
+  ["Set Matrix Zeroes","set-matrix-zeroes","M","SAL"],["Spiral Matrix","spiral-matrix","M","SNL"],["Rotate Image","rotate-image","M","SNL"],["Game of Life","game-of-life","M","L"]]},
+ {p:"Strings",rows:[
+  ["Reverse String","reverse-string","E","AK"],["Longest Common Prefix","longest-common-prefix","E","L"],["Reverse Words in a String","reverse-words-in-a-string","M","L"],
+  ["Zigzag Conversion","zigzag-conversion","M","L"],["Find the Index of the First Occurrence in a String","find-the-index-of-the-first-occurrence-in-a-string","E","L"],
+  ["Text Justification","text-justification","H","L"],["Length of Last Word","length-of-last-word","E","L"],["Roman to Integer","roman-to-integer","E","L"],["Integer to Roman","integer-to-roman","M","L"]]},
+ {p:"Warm-up (Kunal's early assignments)",rows:[
+  ["Richest Customer Wealth","richest-customer-wealth","E","K"],["Flipping an Image","flipping-an-image","E","K"],["Running Sum of 1d Array","running-sum-of-1d-array","E","K"],
+  ["Find Numbers with Even Number of Digits","find-numbers-with-even-number-of-digits","E","K"],["Number of Steps to Reduce a Number to Zero","number-of-steps-to-reduce-a-number-to-zero","E","K"],["Fizz Buzz","fizz-buzz","E","A"]]}
+]},
+{sec:"Prefix Sum & Kadane",tip:"Subarray sums. Kadane for best contiguous sum; prefix sum + hashmap when you must count subarrays equal to K.",groups:[
+ {p:"Kadane / Prefix Sum",rows:[
+  ["Maximum Subarray","maximum-subarray","M","SNAKL"],["Maximum Sum Circular Subarray","maximum-sum-circular-subarray","M","L"],
+  ["Maximum Product Subarray","maximum-product-subarray","M","SN"],["Subarray Sum Equals K","subarray-sum-equals-k","M","SNA"]]}
+]},
+{sec:"Two Pointers",tip:"Sorted input or symmetric shrinking. Move the pointer that cannot improve the answer.",groups:[
+ {p:"Opposite ends / Same direction",rows:[
+  ["Valid Palindrome","valid-palindrome","E","NLA"],["Two Sum II - Input Array Is Sorted","two-sum-ii-input-array-is-sorted","M","NL"],
+  ["3Sum","3sum","M","SNAL"],["4Sum","4sum","M","S"],["Container With Most Water","container-with-most-water","M","SNAL"],
+  ["Trapping Rain Water","trapping-rain-water","H","SNAL"],["Is Subsequence","is-subsequence","E","L"]]}
+]},
+{sec:"Sliding Window",tip:"Contiguous subarray / substring with a constraint. Expand right, shrink left while invalid.",groups:[
+ {p:"Fixed size window",rows:[
+  ["Maximum Points You Can Obtain from Cards","maximum-points-you-can-obtain-from-cards","M","S"],["Find All Anagrams in a String","find-all-anagrams-in-a-string","M","A"],
+  ["Permutation in String","permutation-in-string","M","N"],["Sliding Window Maximum","sliding-window-maximum","H","SNL"]]},
+ {p:"Variable size window",rows:[
+  ["Longest Substring Without Repeating Characters","longest-substring-without-repeating-characters","M","SNAL"],["Longest Repeating Character Replacement","longest-repeating-character-replacement","M","SN"],
+  ["Max Consecutive Ones III","max-consecutive-ones-iii","M","S"],["Fruit Into Baskets","fruit-into-baskets","M","S"],["Count Number of Nice Subarrays","count-number-of-nice-subarrays","M","S"],
+  ["Minimum Size Subarray Sum","minimum-size-subarray-sum","M","L"],["Minimum Window Substring","minimum-window-substring","H","SNL"],
+  ["Substring with Concatenation of All Words","substring-with-concatenation-of-all-words","H","L"],["Subarrays with K Different Integers","subarrays-with-k-different-integers","H","S"]]}
+]},
+{sec:"Binary Search",tip:"Anything monotonic. If you can ask 'is X feasible?' and the answer flips once, binary search the answer.",groups:[
+ {p:"Classic & boundaries",rows:[
+  ["Binary Search","binary-search","E","NKA"],["Search Insert Position","search-insert-position","E","LKS"],["Find First and Last Position of Element in Sorted Array","find-first-and-last-position-of-element-in-sorted-array","M","SK"],
+  ["Sqrt(x)","sqrtx","E","KSL"],["Valid Perfect Square","valid-perfect-square","E","K"],["Find Smallest Letter Greater Than Target","find-smallest-letter-greater-than-target","E","K"],
+  ["Kth Missing Positive Number","kth-missing-positive-number","E","S"],["Time Based Key-Value Store","time-based-key-value-store","M","N"],["Single Element in a Sorted Array","single-element-in-a-sorted-array","M","S"]]},
+ {p:"Rotated array & Mountain",rows:[
+  ["Search in Rotated Sorted Array","search-in-rotated-sorted-array","M","SNAKL"],["Search in Rotated Sorted Array II","search-in-rotated-sorted-array-ii","M","S"],
+  ["Find Minimum in Rotated Sorted Array","find-minimum-in-rotated-sorted-array","M","NSK"],["Find Peak Element","find-peak-element","M","LSK"],
+  ["Peak Index in a Mountain Array","peak-index-in-a-mountain-array","E","K"],["Find in Mountain Array","find-in-mountain-array","H","K"]]},
+ {p:"Binary search on answer",rows:[
+  ["Koko Eating Bananas","koko-eating-bananas","M","NS"],["Capacity To Ship Packages Within D Days","capacity-to-ship-packages-within-d-days","M","S"],
+  ["Minimum Number of Days to Make m Bouquets","minimum-number-of-days-to-make-m-bouquets","M","S"],["Find the Smallest Divisor Given a Threshold","find-the-smallest-divisor-given-a-threshold","M","S"],
+  ["Split Array Largest Sum","split-array-largest-sum","H","SK"]]},
+ {p:"2D & Hard",rows:[
+  ["Search a 2D Matrix","search-a-2d-matrix","M","NLS"],["Median of Two Sorted Arrays","median-of-two-sorted-arrays","H","NSL"]]}
+]},
+{sec:"Stack & Monotonic Stack",tip:"LIFO matching (brackets, expressions) and 'next greater / smaller' via monotonic stack.",groups:[
+ {p:"Classic stack",rows:[
+  ["Valid Parentheses","valid-parentheses","E","NALS"],["Min Stack","min-stack","M","NL"],["Evaluate Reverse Polish Notation","evaluate-reverse-polish-notation","M","NL"],
+  ["Simplify Path","simplify-path","M","L"],["Basic Calculator","basic-calculator","H","L"],["Remove K Digits","remove-k-digits","M","S"],
+  ["Implement Queue using Stacks","implement-queue-using-stacks","E","A"],["Implement Stack using Queues","implement-stack-using-queues","E","A"]]},
+ {p:"Monotonic stack",rows:[
+  ["Next Greater Element I","next-greater-element-i","E","SA"],["Next Greater Element II","next-greater-element-ii","M","S"],["Daily Temperatures","daily-temperatures","M","N"],
+  ["Online Stock Span","online-stock-span","M","SA"],["Car Fleet","car-fleet","M","N"],["Asteroid Collision","asteroid-collision","M","S"],
+  ["Sum of Subarray Minimums","sum-of-subarray-minimums","M","S"],["Largest Rectangle in Histogram","largest-rectangle-in-histogram","H","NSA"],["Maximal Rectangle","maximal-rectangle","H","S"]]}
+]},
+{sec:"Linked List",tip:"Dummy node + pointer rewiring. Fast/slow for cycle, middle, nth-from-end. Reverse in place for palindrome / k-group.",groups:[
+ {p:"Reversal & rewiring",rows:[
+  ["Reverse Linked List","reverse-linked-list","E","SNALK"],["Reverse Linked List II","reverse-linked-list-ii","M","LK"],["Reverse Nodes in k-Group","reverse-nodes-in-k-group","H","NSL"],
+  ["Swap Nodes in Pairs","swap-nodes-in-pairs","M","S"],["Palindrome Linked List","palindrome-linked-list","E","SA"],["Rotate List","rotate-list","M","SL"],["Odd Even Linked List","odd-even-linked-list","M","S"]]},
+ {p:"Fast & slow pointers",rows:[
+  ["Middle of the Linked List","middle-of-the-linked-list","E","SAK"],["Linked List Cycle","linked-list-cycle","E","NSALK"],["Linked List Cycle II","linked-list-cycle-ii","M","SK"],
+  ["Remove Nth Node From End of List","remove-nth-node-from-end-of-list","M","NSL"],["Intersection of Two Linked Lists","intersection-of-two-linked-lists","E","SA"],["Reorder List","reorder-list","M","N"]]},
+ {p:"Merge, sort, delete, design",rows:[
+  ["Merge Two Sorted Lists","merge-two-sorted-lists","E","NSL"],["Merge k Sorted Lists","merge-k-sorted-lists","H","NSL"],["Sort List","sort-list","M","SK"],["Add Two Numbers","add-two-numbers","M","NSL"],
+  ["Remove Duplicates from Sorted List","remove-duplicates-from-sorted-list","E","LK"],["Remove Duplicates from Sorted List II","remove-duplicates-from-sorted-list-ii","M","L"],
+  ["Partition List","partition-list","M","L"],["Remove Linked List Elements","remove-linked-list-elements","E","A"],["Delete Node in a Linked List","delete-node-in-a-linked-list","M","A"],
+  ["Copy List with Random Pointer","copy-list-with-random-pointer","M","NSL"],["LRU Cache","lru-cache","M","NSL"],["LFU Cache","lfu-cache","H","S"]]}
+]},
+{sec:"Trees & BST",tip:"Recursion returns info upward (height, sum, validity). BFS with a queue for level problems. BST inorder is sorted.",groups:[
+ {p:"DFS basics & traversals",rows:[
+  ["Maximum Depth of Binary Tree","maximum-depth-of-binary-tree","E","NSL"],["Invert Binary Tree","invert-binary-tree","E","NSL"],["Same Tree","same-tree","E","NL"],["Symmetric Tree","symmetric-tree","E","SL"],
+  ["Subtree of Another Tree","subtree-of-another-tree","E","N"],["Balanced Binary Tree","balanced-binary-tree","E","NS"],["Diameter of Binary Tree","diameter-of-binary-tree","E","NS"],
+  ["Count Good Nodes in Binary Tree","count-good-nodes-in-binary-tree","M","N"],["Path Sum","path-sum","E","L"],["Sum Root to Leaf Numbers","sum-root-to-leaf-numbers","M","L"],
+  ["Binary Tree Maximum Path Sum","binary-tree-maximum-path-sum","H","NSL"],["Count Complete Tree Nodes","count-complete-tree-nodes","E","SL"],["Flatten Binary Tree to Linked List","flatten-binary-tree-to-linked-list","M","SL"],
+  ["Binary Tree Inorder Traversal","binary-tree-inorder-traversal","E","SA"],["Binary Tree Preorder Traversal","binary-tree-preorder-traversal","E","SA"],["Binary Tree Postorder Traversal","binary-tree-postorder-traversal","E","SA"]]},
+ {p:"BFS / Level order",rows:[
+  ["Binary Tree Level Order Traversal","binary-tree-level-order-traversal","M","NSLK"],["Binary Tree Right Side View","binary-tree-right-side-view","M","NSL"],
+  ["Binary Tree Zigzag Level Order Traversal","binary-tree-zigzag-level-order-traversal","M","SLK"],["Average of Levels in Binary Tree","average-of-levels-in-binary-tree","E","LK"],
+  ["Populating Next Right Pointers in Each Node II","populating-next-right-pointers-in-each-node-ii","M","L"],["Vertical Order Traversal of a Binary Tree","vertical-order-traversal-of-a-binary-tree","H","S"]]},
+ {p:"Lowest Common Ancestor",rows:[
+  ["Lowest Common Ancestor of a Binary Search Tree","lowest-common-ancestor-of-a-binary-search-tree","M","NS"],["Lowest Common Ancestor of a Binary Tree","lowest-common-ancestor-of-a-binary-tree","M","SL"]]},
+ {p:"Binary Search Tree",rows:[
+  ["Validate Binary Search Tree","validate-binary-search-tree","M","NSL"],["Kth Smallest Element in a BST","kth-smallest-element-in-a-bst","M","NSL"],["Minimum Absolute Difference in BST","minimum-absolute-difference-in-bst","E","L"],
+  ["Binary Search Tree Iterator","binary-search-tree-iterator","M","SL"],["Insert into a Binary Search Tree","insert-into-a-binary-search-tree","M","S"],["Delete Node in a BST","delete-node-in-a-bst","M","S"],
+  ["Recover Binary Search Tree","recover-binary-search-tree","M","S"],["Convert Sorted Array to Binary Search Tree","convert-sorted-array-to-binary-search-tree","E","L"]]},
+ {p:"Construction & Serialization",rows:[
+  ["Construct Binary Tree from Preorder and Inorder Traversal","construct-binary-tree-from-preorder-and-inorder-traversal","M","NSL"],
+  ["Construct Binary Tree from Inorder and Postorder Traversal","construct-binary-tree-from-inorder-and-postorder-traversal","M","L"],
+  ["Serialize and Deserialize Binary Tree","serialize-and-deserialize-binary-tree","H","NSL"],["Construct Quad Tree","construct-quad-tree","M","L"]]}
+]},
+{sec:"Heap / Priority Queue",tip:"Top-K and 'repeatedly take the best' problems. Two heaps for streaming median.",groups:[
+ {p:"Top K",rows:[
+  ["Kth Largest Element in an Array","kth-largest-element-in-an-array","M","NSLK"],["Kth Largest Element in a Stream","kth-largest-element-in-a-stream","E","N"],["K Closest Points to Origin","k-closest-points-to-origin","M","N"],
+  ["Last Stone Weight","last-stone-weight","E","N"],["Find K Pairs with Smallest Sums","find-k-pairs-with-smallest-sums","M","L"]]},
+ {p:"Scheduling & Two heaps",rows:[
+  ["Task Scheduler","task-scheduler","M","NS"],["Reorganize String","reorganize-string","M","S"],["Design Twitter","design-twitter","M","N"],
+  ["Find Median from Data Stream","find-median-from-data-stream","H","NSL"],["IPO","ipo","H","L"]]}
+]},
+{sec:"Backtracking & Recursion",tip:"Choose → explore → un-choose. Draw the recursion tree first; prune duplicates with sorting + skip.",groups:[
+ {p:"Subsets & Combinations",rows:[
+  ["Subsets","subsets","M","NSAK"],["Subsets II","subsets-ii","M","NSK"],["Combinations","combinations","M","L"],["Combination Sum","combination-sum","M","NSL"],
+  ["Combination Sum II","combination-sum-ii","M","NS"],["Letter Combinations of a Phone Number","letter-combinations-of-a-phone-number","M","NSLK"],["Generate Parentheses","generate-parentheses","M","NS"]]},
+ {p:"Permutations",rows:[
+  ["Permutations","permutations","M","NSAKL"],["Permutation Sequence","permutation-sequence","H","S"]]},
+ {p:"Grid / Board",rows:[
+  ["Word Search","word-search","M","NSL"],["N-Queens","n-queens","H","NSL"],["N-Queens II","n-queens-ii","H","L"],["Sudoku Solver","sudoku-solver","H","SK"],["Rat in a Maze Problem","gfg:rat-in-a-maze-problem","M","S"]]},
+ {p:"Partitioning strings",rows:[
+  ["Palindrome Partitioning","palindrome-partitioning","M","NS"],["Word Break II","word-break-ii","H","S"]]}
+]},
+{sec:"Tries",tip:"Prefix questions, dictionary search, word grids.",groups:[
+ {p:"Trie",rows:[
+  ["Implement Trie (Prefix Tree)","implement-trie-prefix-tree","M","NSL"],["Design Add and Search Words Data Structure","design-add-and-search-words-data-structure","M","NL"],["Word Search II","word-search-ii","H","NL"]]}
+]},
+{sec:"Graphs",tip:"Build adjacency list, pick BFS / DFS / Topo / Union Find / Dijkstra based on what is asked.",groups:[
+ {p:"Grid BFS / DFS",rows:[
+  ["Number of Islands","number-of-islands","M","NSL"],["Max Area of Island","max-area-of-island","M","N"],["Flood Fill","flood-fill","E","S"],["Rotting Oranges","rotting-oranges","M","NS"],
+  ["01 Matrix","01-matrix","M","S"],["Surrounded Regions","surrounded-regions","M","NSL"],["Pacific Atlantic Water Flow","pacific-atlantic-water-flow","M","N"],["Number of Enclaves","number-of-enclaves","M","S"],
+  ["Shortest Path in Binary Matrix","shortest-path-in-binary-matrix","M","S"],["Making A Large Island","making-a-large-island","H","S"]]},
+ {p:"Graph traversal & cloning",rows:[
+  ["Clone Graph","clone-graph","M","NSL"],["Find if Path Exists in Graph","find-if-path-exists-in-graph","E","S"],["Number of Provinces","number-of-provinces","M","S"],["Is Graph Bipartite?","is-graph-bipartite","M","S"],
+  ["Evaluate Division","evaluate-division","M","L"],["Word Ladder","word-ladder","H","NSL"],["Snakes and Ladders","snakes-and-ladders","M","L"],["Minimum Genetic Mutation","minimum-genetic-mutation","M","L"]]},
+ {p:"Topological sort",rows:[
+  ["Course Schedule","course-schedule","M","NSL"],["Course Schedule II","course-schedule-ii","M","NSL"],["Find Eventual Safe States","find-eventual-safe-states","M","S"],["Alien Dictionary","gfg:alien-dictionary","H","NS"]]},
+ {p:"Union Find",rows:[
+  ["Redundant Connection","redundant-connection","M","N"],["Accounts Merge","accounts-merge","M","S"]]},
+ {p:"Shortest path (weighted)",rows:[
+  ["Network Delay Time","network-delay-time","M","NS"],["Cheapest Flights Within K Stops","cheapest-flights-within-k-stops","M","NS"],["Path With Minimum Effort","path-with-minimum-effort","M","S"],
+  ["Swim in Rising Water","swim-in-rising-water","H","N"],["Find the City With the Smallest Number of Neighbors at a Threshold Distance","find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance","M","S"]]},
+ {p:"MST & Advanced",rows:[
+  ["Min Cost to Connect All Points","min-cost-to-connect-all-points","M","NS"],["Reconstruct Itinerary","reconstruct-itinerary","H","N"],["Critical Connections in a Network","critical-connections-in-a-network","H","S"]]}
+]},
+{sec:"Dynamic Programming",tip:"Define state, write recurrence, then memoize → tabulate → space-optimise. Recognise the family before coding.",groups:[
+ {p:"1D DP / Fibonacci style",rows:[
+  ["Climbing Stairs","climbing-stairs","E","NSAL"],["Fibonacci Number","fibonacci-number","E","SK"],["Min Cost Climbing Stairs","min-cost-climbing-stairs","E","N"],["House Robber","house-robber","M","NSL"],
+  ["House Robber II","house-robber-ii","M","NS"],["Decode Ways","decode-ways","M","NS"],["Word Break","word-break","M","NSL"]]},
+ {p:"Grid DP",rows:[
+  ["Unique Paths","unique-paths","M","NS"],["Unique Paths II","unique-paths-ii","M","LS"],["Minimum Path Sum","minimum-path-sum","M","SL"],["Triangle","triangle","M","LS"],
+  ["Maximal Square","maximal-square","M","LS"],["Count Square Submatrices with All Ones","count-square-submatrices-with-all-ones","M","S"],["Cherry Pickup II","cherry-pickup-ii","H","S"]]},
+ {p:"Knapsack / Subset sum",rows:[
+  ["Partition Equal Subset Sum","partition-equal-subset-sum","M","NS"],["Target Sum","target-sum","M","NS"],["Coin Change","coin-change","M","NSL"],["Coin Change II","coin-change-ii","M","NS"],
+  ["0 - 1 Knapsack Problem","gfg:0-1-knapsack-problem0945","M","S"]]},
+ {p:"Strings (LCS family)",rows:[
+  ["Longest Common Subsequence","longest-common-subsequence","M","NSL"],["Edit Distance","edit-distance","M","NSL"],["Longest Palindromic Substring","longest-palindromic-substring","M","NAL"],
+  ["Palindromic Substrings","palindromic-substrings","M","N"],["Longest Palindromic Subsequence","longest-palindromic-subsequence","M","S"],
+  ["Minimum Insertion Steps to Make a String Palindrome","minimum-insertion-steps-to-make-a-string-palindrome","H","S"],["Shortest Common Supersequence","shortest-common-supersequence","H","S"],
+  ["Distinct Subsequences","distinct-subsequences","H","NS"],["Interleaving String","interleaving-string","M","NL"],["Wildcard Matching","wildcard-matching","H","S"],
+  ["Regular Expression Matching","regular-expression-matching","H","NL"],["Palindrome Partitioning II","palindrome-partitioning-ii","H","S"]]},
+ {p:"LIS",rows:[
+  ["Longest Increasing Subsequence","longest-increasing-subsequence","M","NSL"],["Number of Longest Increasing Subsequence","number-of-longest-increasing-subsequence","M","S"],["Largest Divisible Subset","largest-divisible-subset","M","S"]]},
+ {p:"Stocks & Interval DP",rows:[
+  ["Best Time to Buy and Sell Stock with Cooldown","best-time-to-buy-and-sell-stock-with-cooldown","M","NS"],["Best Time to Buy and Sell Stock III","best-time-to-buy-and-sell-stock-iii","H","LS"],
+  ["Best Time to Buy and Sell Stock IV","best-time-to-buy-and-sell-stock-iv","H","LS"],["Burst Balloons","burst-balloons","H","NS"]]}
+]},
+{sec:"Greedy & Intervals",tip:"Sort first, then make the locally best choice. Prove with an exchange argument.",groups:[
+ {p:"Greedy",rows:[
+  ["Jump Game","jump-game","M","SNL"],["Jump Game II","jump-game-ii","M","NL"],["Gas Station","gas-station","M","NSL"],["Candy","candy","H","SL"],["Assign Cookies","assign-cookies","E","S"],
+  ["Lemonade Change","lemonade-change","E","S"],["Hand of Straights","hand-of-straights","M","N"],["Partition Labels","partition-labels","M","N"],["Valid Parenthesis String","valid-parenthesis-string","M","N"],
+  ["Job Sequencing Problem","gfg:job-sequencing-problem-1587115620","M","S"],["N Meetings in One Room","gfg:n-meetings-in-one-room-1587115620","E","S"],["Fractional Knapsack","gfg:fractional-knapsack-1587115620","M","S"]]},
+ {p:"Intervals",rows:[
+  ["Merge Intervals","merge-intervals","M","NSAL"],["Insert Interval","insert-interval","M","NL"],["Non-overlapping Intervals","non-overlapping-intervals","M","NS"],
+  ["Minimum Number of Arrows to Burst Balloons","minimum-number-of-arrows-to-burst-balloons","M","L"],["Summary Ranges","summary-ranges","E","L"]]}
+]},
+{sec:"Bit Manipulation & Math",tip:"XOR cancels pairs, n & (n-1) clears the lowest set bit, shifts multiply / divide by 2.",groups:[
+ {p:"Bit manipulation",rows:[
+  ["Single Number","single-number","E","SNL"],["Single Number II","single-number-ii","M","SL"],["Number of 1 Bits","number-of-1-bits","E","NLA"],["Counting Bits","counting-bits","E","N"],
+  ["Reverse Bits","reverse-bits","E","NL"],["Sum of Two Integers","sum-of-two-integers","M","N"],["Add Binary","add-binary","E","L"],["Bitwise AND of Numbers Range","bitwise-and-of-numbers-range","M","L"],
+  ["Power of Two","power-of-two","E","KAS"],["Divide Two Integers","divide-two-integers","M","S"]]},
+ {p:"Math",rows:[
+  ["Palindrome Number","palindrome-number","E","LKA"],["Plus One","plus-one","E","LN"],["Pow(x, n)","powx-n","M","NSL"],["Multiply Strings","multiply-strings","M","N"],
+  ["Count Primes","count-primes","M","SAK"],["Factorial Trailing Zeroes","factorial-trailing-zeroes","M","L"],["Reverse Integer","reverse-integer","M","N"],["Max Points on a Line","max-points-on-a-line","H","L"]]}
+]},
+{sec:"Sorting, Cyclic Sort & Recursion (Kunal bootcamp)",tip:"Cyclic sort for numbers in range 1..n. Merge sort / counting inversions for pair-count problems.",groups:[
+ {p:"Sorting & Cyclic sort",rows:[
+  ["Sort an Array","sort-an-array","M","KS"],["Reverse Pairs","reverse-pairs","H","S"],["First Missing Positive","first-missing-positive","H","KS"],["Set Mismatch","set-mismatch","E","K"],
+  ["K-th Symbol in Grammar","k-th-symbol-in-grammar","M","K"]]}
+]}
+];
+
+const url=s=>s.startsWith("gfg:")?"https://www.geeksforgeeks.org/problems/"+s.slice(4)+"/1":"https://leetcode.com/problems/"+s+"/";
+const DN={E:"Easy",M:"Medium",H:"Hard"};
+let store={};
+try{store=JSON.parse(localStorage.getItem("dsa_sheet_done")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("dsa_sheet_done",JSON.stringify(store))}catch(e){}};
+
+const app=document.getElementById("app");
+let html="",total=0;
+DATA.forEach((s,si)=>{
+  let n=0;s.groups.forEach(g=>n+=g.rows.length);total+=n;
+  html+=`<section data-s="${si}"><h2><span>${s.sec}</span><small><span class="cnt"></span></small></h2><div class="body"><div class="tip">${s.tip}</div>`;
+  s.groups.forEach(g=>{
+    html+=`<div class="grp" data-g>${g.p}</div><table class="q">`;
+    g.rows.forEach(r=>{
+      const [t,slug,d,src]=r, must=src.length>=3, isG=slug.startsWith("gfg:");
+      html+=`<tr data-id="${slug}" data-d="${d}" data-src="${src}" data-must="${must?1:0}" data-txt="${(t+" "+g.p+" "+s.sec).toLowerCase()}">
+      <td class="c"><input type="checkbox"></td>
+      <td class="t"><a href="${url(slug)}" target="_blank" rel="noopener">${t}</a>${isG?'<span class="alt">GFG</span>':''}</td>
+      <td><span class="d ${d}">${DN[d]}</span></td>
+      <td class="s">${must?'<span class="chip must">★</span>':''}${src.split("").map(c=>`<span class="chip" title="${SRC[c]}">${c}</span>`).join("")}</td></tr>`;
+    });
+    html+=`</table>`;
+  });
+  html+=`</div></section>`;
+});
+app.innerHTML=html;
+
+document.querySelectorAll("section>h2").forEach(h=>h.onclick=()=>h.parentElement.classList.toggle("closed"));
+document.querySelectorAll("tr[data-id]").forEach(tr=>{
+  const cb=tr.querySelector("input"), id=tr.dataset.id;
+  if(store[id]){cb.checked=true;tr.classList.add("done")}
+  cb.onchange=()=>{if(cb.checked){store[id]=1;tr.classList.add("done")}else{delete store[id];tr.classList.remove("done")}save();update()};
+});
+
+const $=id=>document.getElementById(id);
+function update(){
+  const q=$("q").value.trim().toLowerCase(), fd=$("fd").value, fs=$("fs").value, fm=$("fm").value;
+  let shown=0,done=0,doneAll=0;
+  document.querySelectorAll("tr[data-id]").forEach(tr=>{
+    const isDone=!!store[tr.dataset.id]; if(isDone)doneAll++;
+    let ok=true;
+    if(q&&!tr.dataset.txt.includes(q))ok=false;
+    if(fd&&tr.dataset.d!==fd)ok=false;
+    if(fs&&!tr.dataset.src.includes(fs))ok=false;
+    if(fm==="must"&&tr.dataset.must!=="1")ok=false;
+    if(fm==="todo"&&isDone)ok=false;
+    if(fm==="done"&&!isDone)ok=false;
+    tr.classList.toggle("hide",!ok);
+    if(ok){shown++;if(isDone)done++}
+  });
+  document.querySelectorAll("table.q").forEach(t=>{
+    const vis=t.querySelector("tr:not(.hide)");
+    t.classList.toggle("hide",!vis);t.previousElementSibling.classList.toggle("hide",!vis);
+  });
+  document.querySelectorAll("section").forEach(sec=>{
+    const rows=sec.querySelectorAll("tr[data-id]"),vis=sec.querySelectorAll("tr[data-id]:not(.hide)");
+    let d=0;rows.forEach(r=>{if(store[r.dataset.id])d++});
+    sec.querySelector(".cnt").textContent=d+" / "+rows.length+" solved";
+    sec.classList.toggle("hide",!vis.length);
+  });
+  $("pb").style.width=(100*doneAll/total)+"%";
+  $("st").textContent=`${doneAll} of ${total} solved · showing ${shown} problems`;
+}
+["q","fd","fs","fm"].forEach(i=>$(i).addEventListener("input",update));
+update();
+</script>
+<script src="app.js"></script>
+</body>
+</html>
