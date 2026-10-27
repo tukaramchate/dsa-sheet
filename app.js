@@ -5,8 +5,16 @@
   const readUsers = () => { try { return JSON.parse(localStorage.getItem(usersKey) || "{}"); } catch (error) { return {}; } };
   const saveUsers = (users) => localStorage.setItem(usersKey, JSON.stringify(users));
   const hash = async (value) => {
-    const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-    return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    if (globalThis.crypto?.subtle) {
+      const bytes = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+      return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    }
+    let result = 2166136261;
+    for (const character of value) {
+      result ^= character.charCodeAt(0);
+      result = Math.imul(result, 16777619);
+    }
+    return `fallback-${(result >>> 0).toString(16)}`;
   };
   const toast = (message) => {
     const node = $("toast");
@@ -29,8 +37,11 @@
     shell.classList.remove("hide");
     $("accountName").textContent = `Signed in as ${username}`;
     $("guestActions").classList.add("hide");
+    $("logout").classList.remove("hide");
     if (user.role === "admin") $("admin").classList.remove("hide");
   };
+
+  $("logout").classList.toggle("hide", !activeUser || !users[activeUser]);
 
   const openAuth = (nextMode) => {
     setAuthMode(nextMode);
@@ -70,15 +81,19 @@
     if (!/^[a-z0-9_-]{3,24}$/.test(username)) { $("authError").textContent = "Use 3-24 letters, numbers, _ or -."; return; }
     if (password.length < 6) { $("authError").textContent = "Password must be at least 6 characters."; return; }
     if (mode === "register" && currentUsers[username]) { $("authError").textContent = "That username already exists."; return; }
-    const passwordHash = await hash(password);
-    if (mode === "login") {
-      if (!currentUsers[username] || currentUsers[username].passwordHash !== passwordHash) { $("authError").textContent = "Incorrect username or password."; return; }
-    } else {
-      currentUsers[username] = { passwordHash, role: username === "admin" ? "admin" : "student", progress: {}, createdAt: new Date().toISOString(), lastActive: new Date().toISOString() };
-      saveUsers(currentUsers);
+    try {
+      const passwordHash = await hash(password);
+      if (mode === "login") {
+        if (!currentUsers[username] || currentUsers[username].passwordHash !== passwordHash) { $("authError").textContent = "Incorrect username or password."; return; }
+      } else {
+        currentUsers[username] = { passwordHash, role: username === "admin" ? "admin" : "student", progress: {}, createdAt: new Date().toISOString(), lastActive: new Date().toISOString() };
+        saveUsers(currentUsers);
+      }
+      localStorage.setItem(activeKey, username);
+      location.reload();
+    } catch (error) {
+      $("authError").textContent = "Account storage is unavailable. Open the app through Vercel or localhost.";
     }
-    localStorage.setItem(activeKey, username);
-    location.reload();
   });
 
   if (activeUser && users[activeUser]) showApp(activeUser);
