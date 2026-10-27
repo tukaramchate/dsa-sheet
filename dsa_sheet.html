@@ -50,9 +50,44 @@ footer{color:var(--mute);font-size:12.5px;margin-top:30px}
 @media (max-width:640px){td.s{display:none}}
 </style>
 <link rel="stylesheet" href="styles.css">
+<style>
+.top-nav{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:16px;margin:-20px -16px 22px;padding:10px 16px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:700;text-decoration:none}.nav-account{display:flex;align-items:center;justify-content:flex-end;gap:6px}.nav-account .account-name{margin-right:4px}.nav-account button{white-space:nowrap}
+@media (max-width:640px){.top-nav{align-items:flex-start}.brand{padding-top:8px}.nav-account{flex-wrap:wrap;justify-content:flex-end}.nav-account .account-name{width:100%;text-align:right}}
+</style>
 </head>
 <body>
-<div class="wrap">
+<div id="auth" class="auth-shell hide">
+  <div class="auth-card">
+    <h1>DSA Interview Sheet</h1>
+    <p class="auth-copy">Sign in to keep your solved problems and study history separate.</p>
+    <button id="closeAuth" class="auth-close" type="button" aria-label="Close authentication">&times;</button>
+    <div class="auth-tabs"><button id="loginTab" class="active" type="button">Login</button><button id="registerTab" type="button">Create account</button></div>
+    <form id="authForm">
+      <label>Username<input id="authUsername" required minlength="3" autocomplete="username"></label>
+      <label>Password<input id="authPassword" required minlength="6" type="password" autocomplete="current-password"></label>
+      <button class="primary auth-submit" type="submit">Login</button>
+      <p id="authError" class="auth-error" role="alert"></p>
+    </form>
+    <p class="auth-note">This static version stores accounts in this browser. Use a real backend before using it with sensitive data.</p>
+  </div>
+</div>
+<div id="adminPanel" class="admin-panel hide">
+  <div class="admin-card">
+    <div class="admin-head"><div><h2>Admin panel</h2><p>Registered accounts and saved progress</p></div><button id="closeAdmin" type="button">Close</button></div>
+    <div id="adminUsers"></div>
+  </div>
+</div>
+<div class="wrap app-shell">
+<nav class="top-nav" aria-label="Account navigation">
+  <a class="brand" href=".">DSA Sheet</a>
+  <div class="nav-account">
+    <span id="accountName" class="account-name"></span>
+    <span id="guestActions"><button id="login" type="button">Login</button><button id="register" class="primary" type="button">Register</button></span>
+    <button id="admin" type="button" class="hide">Admin panel</button>
+    <button id="logout" type="button">Logout</button>
+  </div>
+</nav>
 <h1>DSA Interview Sheet — Pattern wise</h1>
 <p class="sub">Merged &amp; de-duplicated from Striver (A2Z / SDE sheet), NeetCode 150, Apna College (Love Babbar style list), Kunal Kushwaha's DSA bootcamp assignments and LeetCode Top Interview 150. Each problem appears once, tagged with every list it belongs to.</p>
 
@@ -63,28 +98,12 @@ footer{color:var(--mute);font-size:12.5px;margin-top:30px}
     <select id="fs"><option value="">All sources</option><option value="S">Striver</option><option value="N">NeetCode</option><option value="A">Apna College</option><option value="K">Kunal Kushwaha</option><option value="L">LC Top 150</option></select>
     <select id="fm"><option value="">All problems</option><option value="must">Must-do only (3+ lists)</option><option value="todo">Not solved</option><option value="done">Solved</option></select>
   </div>
-  <div class="actions">
-    <button id="expandAll" type="button">Expand all</button>
-    <button id="focus" type="button">Focus mode</button>
-    <button id="reset" type="button">Reset progress</button>
-    <button id="export" class="primary" type="button">Export progress</button>
-    <button id="import" type="button">Import progress</button>
-    <input id="importFile" type="file" accept="application/json" hidden>
-  </div>
   <div class="prog"><i id="pb"></i></div>
   <div class="stats" id="st"></div>
 </div>
 
-<div class="legend">
-  <span class="chip must">★ Must-do = in 3 or more lists</span>
-  <span class="chip">S Striver</span><span class="chip">N NeetCode</span><span class="chip">A Apna College</span><span class="chip">K Kunal</span><span class="chip">L LC Top 150</span>
-</div>
-
 <div id="app"></div>
 
-<footer>
-Tick the checkbox to track progress; it is saved in your browser. Links go to LeetCode, except a few GFG-only problems which link to GeeksforGeeks. Premium-only LeetCode problems (Encode/Decode Strings, Meeting Rooms, Graph Valid Tree, etc.) are left out so every link opens for free; their GFG or free equivalents are included where possible.
-</footer>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </div>
 
@@ -291,9 +310,11 @@ const DATA=[
 
 const url=s=>s.startsWith("gfg:")?"https://www.geeksforgeeks.org/problems/"+s.slice(4)+"/1":"https://leetcode.com/problems/"+s+"/";
 const DN={E:"Easy",M:"Medium",H:"Hard"};
-let store={};
-try{store=JSON.parse(localStorage.getItem("dsa_sheet_done")||"{}")}catch(e){}
-const save=()=>{try{localStorage.setItem("dsa_sheet_done",JSON.stringify(store))}catch(e){}};
+const activeUser=localStorage.getItem("dsa_active_user");
+let users={};
+try{users=JSON.parse(localStorage.getItem("dsa_users")||"{}")}catch(e){}
+let store=activeUser&&users[activeUser]?users[activeUser].progress||{}:{};
+const save=()=>{try{if(activeUser&&users[activeUser]){users[activeUser].progress=store;users[activeUser].lastActive=new Date().toISOString();localStorage.setItem("dsa_users",JSON.stringify(users))}}catch(e){}};
 
 const app=document.getElementById("app");
 let html="",total=0;
